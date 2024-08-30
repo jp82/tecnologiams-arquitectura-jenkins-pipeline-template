@@ -1,0 +1,34 @@
+@Library("jenkins-sharedlib@develop") _
+pipeline {
+    agent {
+        kubernetes {
+            cloud 'K8s-Cluster-Jenkins'
+            inheritFrom 'jenkins-agent-helm'
+        }
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                gitLabCheckOut this, env.GITLAB_REPO_URL, env.GITLAB_REPO_BRANCH
+            }
+        }
+        stage('Scan Vulnerabilities') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    osvScanner this, env.ARTIFACTORY_BASE_URL, "docker.io", "artifactory-credentials", "dockerhub-credentials"
+                    sh "exit 0"
+                }
+            }
+        }
+        stage('Compile') {
+            steps {
+                gradlewCompile this, env.ARTIFACTORY_BASE_URL, env.GRADLEW_ARG
+            }
+        }
+        stage('Generate and Publish Docker Image') {
+            steps {
+                dockerBuildAndPublish this, "${env.DOCKER_IMAGE_NAME}", "${env.DOCKER_IMAGE_VERSION}-${currentBuild.number}", "docker.io","hachidevops", "openjdk:17-alpine", "dockerhub-credentials"
+            }
+        }
+    }
+}

@@ -1,0 +1,16 @@
+@Library("jenkins-sharedlib") _
+pipeline {
+    agent {
+        kubernetes {
+            cloud 'K8s-Cluster-Jenkins'
+            inheritFrom 'jenkins-agent-helm'
+        }
+    }0
+    stages {
+        stage('Promote to QA') {
+            steps {
+                echo "Promocionar a calidad"
+            }
+        }
+    }
+}
