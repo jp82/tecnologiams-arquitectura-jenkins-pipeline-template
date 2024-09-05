@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Generate and Publish Docker Image') {
             steps {
-                dockerBuildAndPublish this, "${env.DOCKER_IMAGE_NAME}", "${env.DOCKER_IMAGE_VERSION}-${currentBuild.number}", "docker.io","hachidevops", "openjdk:17-alpine", "dockerhub-credentials"
+                dockerBuildAndPublish this, "${env.DOCKER_IMAGE_NAME}", "${env.DOCKER_IMAGE_VERSION}-${currentBuild.number}", "docker.io","jsantivanez82", "openjdk:17-alpine", "dockerhub-credentials"
             }
         }
     }
