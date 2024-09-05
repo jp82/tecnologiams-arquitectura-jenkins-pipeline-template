@@ -1,4 +1,4 @@
-@Library("jenkins-sharedlib@main") _
+@Library("jenkins-sharedlib@develop") _
 pipeline {
     agent {
         kubernetes {
