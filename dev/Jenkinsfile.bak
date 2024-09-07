@@ -1,4 +1,4 @@
-@Library("jenkins-sharedlib@main") _
+@Library("jenkins-sharedlib@2024-001") _
 pipeline {
     agent {
         kubernetes {
@@ -15,7 +15,7 @@ pipeline {
         stage('Scan Vulnerabilities') {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                    osvScanner this, env.ARTIFACTORY_BASE_URL, "docker.io", "artifactory-credentials", "dockerhub-credentials"
+                    osvScanner this, env.ARTIFACTORY_BASE_URL
                     sh "exit 0"
                 }
             }
@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Generate and Publish Docker Image') {
             steps {
-                dockerBuildAndPublish this, "${env.DOCKER_IMAGE_NAME}", "${env.DOCKER_IMAGE_VERSION}-${currentBuild.number}", "docker.io","hachidevops", "openjdk:17-alpine", "dockerhub-credentials"
+                dockerBuildAndPublish this, "${env.DOCKER_IMAGE_NAME}", "${env.DOCKER_IMAGE_VERSION}-${currentBuild.number}"
             }
         }
     }
