@@ -1,16 +1,47 @@
-@Library("jenkins-sharedlib") _
+/**
+* @author      Wilmer Orlando Diaz Guevara (Arquitecto Soluciones)
+* @version     1.0
+*/
+
+@Library("jenkins-sharedlib@2024-001") _
 pipeline {
+ agent none
+ 
+ stages {
+ stage('Stage of Promote to Production'){
+	when {
+		expression {
+			timeout(time: 120, unit: 'SECONDS') {
+				userInput = input(id: 'userInput',
+					message:"Promocionar a Produccion?",
+					parameters:[[$class:'TextParameterDefinition',name:'promotionUsername',description:"Usuario para promocionar en Artifactory"],
+					[$class:'PasswordParameterDefinition',name:'promotionPassword',description:"Password para promocionar en Artifactory"],
+					]
+				)
+				return true
+			}
+		}
+		beforeAgent true
+	}
+
     agent {
         kubernetes {
             cloud 'K8s-Cluster-Jenkins'
             inheritFrom 'jenkins-agent-helm'
         }
-    }0
+    }
     stages {
-        stage('Promote to QA') {
+        stage('Promocionar a produccion') {
             steps {
-                echo "Promocionar a Produccion"
+                script {
+			        promotionUsername = userInput['promotionUsername']
+			        promotionPassword = userInput['promotionPassword']
+                    promoteToProduccion this, env.ARTIFACTORY_BASE_URL, env.DOCKER_REPOSITORY, env.DOCKER_IMAGE_VERSION, "$promotionUsername", "$promotionPassword"
+                }
             }
         }
     }
+
+ }}
+
 }

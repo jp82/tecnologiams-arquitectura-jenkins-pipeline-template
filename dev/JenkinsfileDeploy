@@ -7,6 +7,11 @@ pipeline {
         }
     }
     stages {
+		stage('Deploy') {
+            steps {
+                k8sRunScript this, env.K8S_SCRIPT, env.K8S_CONFIG_ID
+            }
+        }
         stage('Checkout Code') {
             steps {
                 gitLabCheckOut this, env.GITLAB_REPO_URL, env.GITLAB_REPO_BRANCH
@@ -20,14 +25,10 @@ pipeline {
                 }
             }
         }
-        stage('Compile') {
+
+        stage('Compile, Generate and Publish Docker Image') {
             steps {
-                gradlewCompile this, env.ARTIFACTORY_BASE_URL, env.GRADLEW_ARG
-            }
-        }
-        stage('Generate and Publish Docker Image') {
-            steps {
-                dockerBuildAndPublish this, "${env.DOCKER_IMAGE_NAME}", "${env.DOCKER_IMAGE_VERSION}-${currentBuild.number}"
+                gradlewScript this, env.GRADLEW_SCRIPT, env.ARTIFACTORY_BASE_URL
             }
         }
     }
