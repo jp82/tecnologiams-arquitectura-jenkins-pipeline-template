@@ -1,0 +1,17 @@
+@Library("jenkins-sharedlib@main") _
+pipeline {
+    agent {
+        kubernetes {
+            cloud 'K8s-Cluster-Jenkins'
+            inheritFrom 'jenkins-agent-helm'
+        }
+    }
+    stages {
+        
+		stage('Deploy') {
+            steps {
+                k8sRunScript this, env.K8S_SCRIPT, env.K8S_CONFIG_ID
+            }
+        }
+    }
+}
